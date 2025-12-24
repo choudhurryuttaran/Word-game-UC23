@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Word Game</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --background: #2d3436;
+            --surface: #dfe6e9;
+            --text: #2d3436;
+            --danger: #d63031;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--surface);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            color: var(--text);
+        }
+
+        h1 { margin-bottom: 1.5rem; color: var(--primary); }
+        h2 { margin-bottom: 1rem; }
+
+        .input-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #b2bec3;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        button:active { transform: scale(0.98); }
+        button:hover { background-color: #5649c0; }
+
+        .hidden { display: none; }
+        
+        .role-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border: 2px dashed var(--primary);
+        }
+
+        .secret-word {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .role-title {
+            font-size: 1.2rem;
+            color: #636e72;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .error {
+            color: var(--danger);
+            margin-bottom: 1rem;
+            font-weight: bold;
+            display: none;
+        }
+
+        .blind-text {
+            color: var(--danger);
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="setupScreen">
+            <h1>Game Setup</h1>
+            <div class="input-group">
+                <label>Total Players</label>
+                <input type="number" id="totalPlayers" value="5" min="3">
+            </div>
+            <hr>
+            <div class="input-group">
+                <label>Conservatives Count</label>
+                <input type="number" id="conCount" value="2" min="1">
+            </div>
+            <div class="input-group">
+                <label>Liberals Count</label>
+                <input type="number" id="libCount" value="2" min="1">
+            </div>
+            <div class="input-group">
+                <label>Mr. Blind Count</label>
+                <input type="number" id="blindCount" value="1" min="0">
+            </div>
+            <p id="errorMsg" class="error">Error: Role counts must equal Total Players!</p>
+            <button onclick="startGame()">Start Game</button>
+        </div>
+
+        <div id="passScreen" class="hidden">
+            <h1>Pass the Device</h1>
+            <p>Pass the device to:</p>
+            <h2 id="playerIndicator" style="font-size: 2rem;">Player 1</h2>
+            <p>Click below when you are ready to see your secret.</p>
+            <button onclick="revealRole()">Reveal Secret</button>
+        </div>
+
+        <div id="revealScreen" class="hidden">
+            <div class="role-card">
+                <div class="role-title">Your Secret</div>
+                <div id="secretDisplay" class="secret-word">???</div>
+                <p id="instructionText">Memorize this!</p>
+            </div>
+            <button onclick="nextPlayer()">Got it! Hide info</button>
+        </div>
+
+        <div id="gameScreen" class="hidden">
+            <h1>All Roles Assigned!</h1>
+            <p>The device has been passed to everyone.</p>
+            <div class="role-card">
+                <p>Start debating!</p>
+                <p>Find out who is on your team, and who is Mr. Blind.</p>
+            </div>
+            <button onclick="location.reload()">New Game</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Database of Similar Words
+        const wordPairs = [
+            { con: "Coffee", lib: "Tea" },
+            { con: "Beach", lib: "Pool" },
+            { con: "Train", lib: "Subway" },
+            { con: "Laptop", lib: "Tablet" },
+            { con: "Guitar", lib: "Violin" },
+            { con: "Apple", lib: "Pear" },
+            { con: "Sun", lib: "Moon" },
+            { con: "Socks", lib: "Shoes" },
+            { con: "Pen", lib: "Pencil" },
+            { con: "Bread", lib: "Toast" },
+            { con: "Football", lib: "Rugby" },
+            { con: "Movie", lib: "Play" }
+        ];
+
+        let playersQueue = [];
+        let currentPlayerIndex = 0;
+
+        function startGame() {
+            const total = parseInt(document.getElementById('totalPlayers').value);
+            const con = parseInt(document.getElementById('conCount').value);
+            const lib = parseInt(document.getElementById('libCount').value);
+            const blind = parseInt(document.getElementById('blindCount').value);
+            const errorMsg = document.getElementById('errorMsg');
+
+            // Validation
+            if (con + lib + blind !== total) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerText = `Counts (${con+lib+blind}) do not match Total Players (${total})`;
+                return;
+            }
+            if (total < 3) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerText = "Minimum 3 players required.";
+                return;
+            }
+
+            errorMsg.style.display = 'none';
+
+            // Select Word Pair
+            const pairIndex = Math.floor(Math.random() * wordPairs.length);
+            const selectedPair = wordPairs[pairIndex];
+
+            // Build Role Deck
+            let roles = [];
+            for(let i=0; i<con; i++) roles.push({ type: 'Conservative', word: selectedPair.con });
+            for(let i=0; i<lib; i++) roles.push({ type: 'Liberal', word: selectedPair.lib });
+            for(let i=0; i<blind; i++) roles.push({ type: 'Mr. Blind', word: null });
+
+            // Shuffle Roles (Fisher-Yates)
+            for (let i = roles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [roles[i], roles[j]] = [roles[j], roles[i]];
+            }
+
+            playersQueue = roles;
+            currentPlayerIndex = 0;
+
+            // Switch UI
+            document.getElementById('setupScreen').classList.add('hidden');
+            document.getElementById('passScreen').classList.remove('hidden');
+            updatePlayerIndicator();
+        }
+
+        function updatePlayerIndicator() {
+            document.getElementById('playerIndicator').innerText = `Player ${currentPlayerIndex + 1}`;
+        }
+
+        function revealRole() {
+            const role = playersQueue[currentPlayerIndex];
+            const display = document.getElementById('secretDisplay');
+            const instruction = document.getElementById('instructionText');
+
+            if (role.type === 'Mr. Blind') {
+                display.innerHTML = "<span class='blind-text'>YOU ARE<br>MR. BLIND</span>";
+                instruction.innerText = "You don't know the word. Blend in!";
+            } else {
+                display.innerText = role.word;
+                instruction.innerText = `You are a ${role.type}. Find your teammates.`;
+            }
+
+            document.getElementById('passScreen').classList.add('hidden');
+            document.getElementById('revealScreen').classList.remove('hidden');
+        }
+
+        function nextPlayer() {
+            currentPlayerIndex++;
+
+            if (currentPlayerIndex >= playersQueue.length) {
+                // Game Start
+                document.getElementById('revealScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+            } else {
+                // Next Pass
+                updatePlayerIndicator();
+                document.getElementById('revealScreen').classList.add('hidden');
+                document.getElementById('passScreen').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

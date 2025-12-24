@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Word Game</title>
+    <title>Secret Word Game v2</title>
     <style>
         :root {
-            --primary: #6c5ce7;
-            --secondary: #a29bfe;
-            --background: #2d3436;
-            --surface: #dfe6e9;
+            --primary: #0984e3;
+            --secondary: #74b9ff;
+            --background: #dfe6e9;
+            --surface: #ffffff;
             --text: #2d3436;
             --danger: #d63031;
         }
@@ -29,28 +29,22 @@
             background-color: var(--surface);
             padding: 2rem;
             border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             text-align: center;
             color: var(--text);
         }
 
-        h1 { margin-bottom: 1.5rem; color: var(--primary); }
-        h2 { margin-bottom: 1rem; }
-
-        .input-group {
-            margin-bottom: 1rem;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-
-        input[type="number"] {
+        h1 { margin-bottom: 1.5rem; color: var(--primary); margin-top: 0; }
+        
+        /* Input Styling */
+        .input-group { margin-bottom: 1rem; text-align: left; }
+        .row { display: flex; gap: 10px; }
+        
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; font-size: 0.9rem;}
+        
+        input[type="number"], input[type="text"] {
             width: 100%;
             padding: 10px;
             border: 2px solid #b2bec3;
@@ -59,6 +53,32 @@
             box-sizing: border-box;
         }
 
+        .add-btn {
+            background-color: var(--secondary);
+            width: auto;
+            padding: 10px 20px;
+        }
+
+        /* Player List */
+        #playerList {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            margin-bottom: 1rem;
+        }
+        #playerList li {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        #playerList li:last-child { border-bottom: none; }
+        .remove-btn { color: var(--danger); cursor: pointer; font-weight: bold; }
+
+        /* Buttons */
         button {
             background-color: var(--primary);
             color: white;
@@ -68,47 +88,54 @@
             font-size: 1.1rem;
             cursor: pointer;
             width: 100%;
-            transition: transform 0.1s, background-color 0.2s;
+            transition: transform 0.1s;
         }
-
         button:active { transform: scale(0.98); }
-        button:hover { background-color: #5649c0; }
 
+        /* Game States */
         .hidden { display: none; }
         
         .role-card {
-            background: white;
+            background: #f1f2f6;
             padding: 2rem;
             border-radius: 10px;
-            margin: 1rem 0;
+            margin: 2rem 0;
             border: 2px dashed var(--primary);
         }
 
         .secret-word {
-            font-size: 2rem;
-            font-weight: bold;
+            font-size: 2.5rem;
+            font-weight: 800;
             color: var(--primary);
             margin: 20px 0;
+            word-wrap: break-word;
         }
 
-        .role-title {
-            font-size: 1.2rem;
+        .instruction {
             color: #636e72;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-style: italic;
         }
 
         .error {
-            color: var(--danger);
+            background: #ff7675;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
             margin-bottom: 1rem;
-            font-weight: bold;
             display: none;
         }
 
         .blind-text {
             color: var(--danger);
             font-weight: bold;
-            font-size: 1.5rem;
+            font-size: 2rem;
+        }
+        
+        .counts-container {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -118,50 +145,62 @@
         
         <div id="setupScreen">
             <h1>Game Setup</h1>
+            
             <div class="input-group">
-                <label>Total Players</label>
-                <input type="number" id="totalPlayers" value="5" min="3">
+                <label>Add Players (<span id="playerCountDisplay">0</span>)</label>
+                <div class="row">
+                    <input type="text" id="playerNameInput" placeholder="Enter name..." onkeypress="handleEnter(event)">
+                    <button class="add-btn" onclick="addPlayer()">Add</button>
+                </div>
             </div>
-            <hr>
-            <div class="input-group">
-                <label>Conservatives Count</label>
-                <input type="number" id="conCount" value="2" min="1">
+            <ul id="playerList"></ul>
+
+            <div class="counts-container">
+                <div class="row">
+                    <div class="input-group" style="flex:1">
+                        <label>Conservatives</label>
+                        <input type="number" id="conCount" value="2" min="1">
+                    </div>
+                    <div class="input-group" style="flex:1">
+                        <label>Liberals</label>
+                        <input type="number" id="libCount" value="2" min="1">
+                    </div>
+                    <div class="input-group" style="flex:1">
+                        <label>Mr. Blind</label>
+                        <input type="number" id="blindCount" value="1" min="0">
+                    </div>
+                </div>
             </div>
-            <div class="input-group">
-                <label>Liberals Count</label>
-                <input type="number" id="libCount" value="2" min="1">
-            </div>
-            <div class="input-group">
-                <label>Mr. Blind Count</label>
-                <input type="number" id="blindCount" value="1" min="0">
-            </div>
-            <p id="errorMsg" class="error">Error: Role counts must equal Total Players!</p>
+
+            <p id="errorMsg" class="error"></p>
             <button onclick="startGame()">Start Game</button>
         </div>
 
         <div id="passScreen" class="hidden">
             <h1>Pass the Device</h1>
             <p>Pass the device to:</p>
-            <h2 id="playerIndicator" style="font-size: 2rem;">Player 1</h2>
-            <p>Click below when you are ready to see your secret.</p>
-            <button onclick="revealRole()">Reveal Secret</button>
+            <h2 id="currentPlayerName" style="font-size: 2.5rem; color: var(--primary);">Name</h2>
+            <p style="margin-top: 30px;">Tap below to reveal your word.</p>
+            <button onclick="revealRole()">Reveal Word</button>
         </div>
 
         <div id="revealScreen" class="hidden">
+            <h3 id="revealNameHeader">Hi [Name]</h3>
             <div class="role-card">
-                <div class="role-title">Your Secret</div>
+                <div class="instruction">Your secret word is:</div>
                 <div id="secretDisplay" class="secret-word">???</div>
-                <p id="instructionText">Memorize this!</p>
+                <p id="instructionText">Memorize this word!</p>
             </div>
             <button onclick="nextPlayer()">Got it! Hide info</button>
         </div>
 
         <div id="gameScreen" class="hidden">
-            <h1>All Roles Assigned!</h1>
-            <p>The device has been passed to everyone.</p>
-            <div class="role-card">
-                <p>Start debating!</p>
-                <p>Find out who is on your team, and who is Mr. Blind.</p>
+            <h1>Ready to Play!</h1>
+            <div class="role-card" style="background: white;">
+                <p style="font-size: 1.2rem;">All words have been assigned.</p>
+                <hr>
+                <p><strong>First Player:</strong> <span id="firstPlayerName"></span></p>
+                <p>Start the discussion!</p>
             </div>
             <button onclick="location.reload()">New Game</button>
         </div>
@@ -169,86 +208,140 @@
     </div>
 
     <script>
-        // Database of Similar Words
+        // --- DATA ---
         const wordPairs = [
-            { con: "Coffee", lib: "Tea" },
-            { con: "Beach", lib: "Pool" },
-            { con: "Train", lib: "Subway" },
-            { con: "Laptop", lib: "Tablet" },
-            { con: "Guitar", lib: "Violin" },
-            { con: "Apple", lib: "Pear" },
-            { con: "Sun", lib: "Moon" },
-            { con: "Socks", lib: "Shoes" },
-            { con: "Pen", lib: "Pencil" },
-            { con: "Bread", lib: "Toast" },
-            { con: "Football", lib: "Rugby" },
-            { con: "Movie", lib: "Play" }
+            { con: "Coffee", lib: "Tea" }, { con: "Beach", lib: "Pool" },
+            { con: "Train", lib: "Subway" }, { con: "Laptop", lib: "Tablet" },
+            { con: "Guitar", lib: "Violin" }, { con: "Apple", lib: "Pear" },
+            { con: "Sun", lib: "Moon" }, { con: "Socks", lib: "Shoes" },
+            { con: "Pen", lib: "Pencil" }, { con: "Bread", lib: "Toast" },
+            { con: "Football", lib: "Rugby" }, { con: "Movie", lib: "Play" },
+            { con: "Superman", lib: "Batman" }, { con: "Dog", lib: "Cat" },
+            { con: "Cake", lib: "Pie" }, { con: "Gold", lib: "Silver" }
         ];
 
-        let playersQueue = [];
-        let currentPlayerIndex = 0;
+        let names = [];
+        let gameQueue = [];
+        let currentIndex = 0;
+
+        // --- SETUP LOGIC ---
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') addPlayer();
+        }
+
+        function addPlayer() {
+            const input = document.getElementById('playerNameInput');
+            const name = input.value.trim();
+            if (name) {
+                names.push(name);
+                renderNames();
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function removePlayer(index) {
+            names.splice(index, 1);
+            renderNames();
+        }
+
+        function renderNames() {
+            const list = document.getElementById('playerList');
+            document.getElementById('playerCountDisplay').innerText = names.length;
+            list.innerHTML = '';
+            names.forEach((name, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${name}</span> <span class="remove-btn" onclick="removePlayer(${index})">✕</span>`;
+                list.appendChild(li);
+            });
+        }
+
+        // --- GAME LOGIC ---
 
         function startGame() {
-            const total = parseInt(document.getElementById('totalPlayers').value);
-            const con = parseInt(document.getElementById('conCount').value);
-            const lib = parseInt(document.getElementById('libCount').value);
-            const blind = parseInt(document.getElementById('blindCount').value);
+            const conCount = parseInt(document.getElementById('conCount').value);
+            const libCount = parseInt(document.getElementById('libCount').value);
+            const blindCount = parseInt(document.getElementById('blindCount').value);
             const errorMsg = document.getElementById('errorMsg');
 
             // Validation
-            if (con + lib + blind !== total) {
-                errorMsg.style.display = 'block';
-                errorMsg.innerText = `Counts (${con+lib+blind}) do not match Total Players (${total})`;
+            if (names.length < 3) {
+                showError("Add at least 3 players.");
                 return;
             }
-            if (total < 3) {
-                errorMsg.style.display = 'block';
-                errorMsg.innerText = "Minimum 3 players required.";
+            if ((conCount + libCount + blindCount) !== names.length) {
+                showError(`Role counts (${conCount + libCount + blindCount}) must equal Player count (${names.length}).`);
                 return;
             }
 
-            errorMsg.style.display = 'none';
-
-            // Select Word Pair
-            const pairIndex = Math.floor(Math.random() * wordPairs.length);
-            const selectedPair = wordPairs[pairIndex];
-
-            // Build Role Deck
+            // 1. Generate Roles
+            const pair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
             let roles = [];
-            for(let i=0; i<con; i++) roles.push({ type: 'Conservative', word: selectedPair.con });
-            for(let i=0; i<lib; i++) roles.push({ type: 'Liberal', word: selectedPair.lib });
-            for(let i=0; i<blind; i++) roles.push({ type: 'Mr. Blind', word: null });
+            for(let i=0; i<conCount; i++) roles.push({ type: 'Regular', word: pair.con });
+            for(let i=0; i<libCount; i++) roles.push({ type: 'Regular', word: pair.lib });
+            for(let i=0; i<blindCount; i++) roles.push({ type: 'Mr. Blind', word: null });
 
-            // Shuffle Roles (Fisher-Yates)
-            for (let i = roles.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [roles[i], roles[j]] = [roles[j], roles[i]];
+            // 2. Shuffle Roles
+            shuffleArray(roles);
+
+            // 3. FORCE RULE: Player 1 cannot be Mr. Blind
+            // If the first role is Blind, find a non-blind role and swap
+            if (roles[0].type === 'Mr. Blind') {
+                const swapIndex = roles.findIndex(r => r.type !== 'Mr. Blind');
+                // Swap
+                [roles[0], roles[swapIndex]] = [roles[swapIndex], roles[0]];
             }
 
-            playersQueue = roles;
-            currentPlayerIndex = 0;
+            // 4. Assign Roles to Names
+            gameQueue = names.map((name, i) => ({
+                name: name,
+                type: roles[i].type,
+                word: roles[i].word
+            }));
 
+            currentIndex = 0;
+            errorMsg.style.display = 'none';
+            
             // Switch UI
             document.getElementById('setupScreen').classList.add('hidden');
             document.getElementById('passScreen').classList.remove('hidden');
-            updatePlayerIndicator();
+            updatePassScreen();
         }
 
-        function updatePlayerIndicator() {
-            document.getElementById('playerIndicator').innerText = `Player ${currentPlayerIndex + 1}`;
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.innerText = msg;
+            el.style.display = 'block';
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // --- PLAY FLOW ---
+
+        function updatePassScreen() {
+            document.getElementById('currentPlayerName').innerText = gameQueue[currentIndex].name;
         }
 
         function revealRole() {
-            const role = playersQueue[currentPlayerIndex];
+            const player = gameQueue[currentIndex];
             const display = document.getElementById('secretDisplay');
             const instruction = document.getElementById('instructionText');
+            
+            document.getElementById('revealNameHeader').innerText = `Hi, ${player.name}`;
 
-            if (role.type === 'Mr. Blind') {
+            if (player.type === 'Mr. Blind') {
                 display.innerHTML = "<span class='blind-text'>YOU ARE<br>MR. BLIND</span>";
-                instruction.innerText = "You don't know the word. Blend in!";
+                instruction.innerText = "You have no word. Blend in!";
             } else {
-                display.innerText = role.word;
-                instruction.innerText = `You are a ${role.type}. Find your teammates.`;
+                // Rule: Do not show if they are Conservative or Liberal. Only show the word.
+                display.innerText = player.word;
+                instruction.innerText = "This is your secret word.";
             }
 
             document.getElementById('passScreen').classList.add('hidden');
@@ -256,15 +349,13 @@
         }
 
         function nextPlayer() {
-            currentPlayerIndex++;
-
-            if (currentPlayerIndex >= playersQueue.length) {
-                // Game Start
+            currentIndex++;
+            if (currentIndex >= gameQueue.length) {
                 document.getElementById('revealScreen').classList.add('hidden');
+                document.getElementById('firstPlayerName').innerText = gameQueue[0].name;
                 document.getElementById('gameScreen').classList.remove('hidden');
             } else {
-                // Next Pass
-                updatePlayerIndicator();
+                updatePassScreen();
                 document.getElementById('revealScreen').classList.add('hidden');
                 document.getElementById('passScreen').classList.remove('hidden');
             }

@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Word Game v2</title>
+    <title>Secret Word: Elimination Mode</title>
     <style>
         :root {
-            --primary: #0984e3;
-            --secondary: #74b9ff;
-            --background: #dfe6e9;
+            --primary: #2c3e50;
+            --accent: #e74c3c;
+            --bg: #ecf0f1;
             --surface: #ffffff;
-            --text: #2d3436;
-            --danger: #d63031;
+            --text: #2c3e50;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--background);
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -28,114 +27,68 @@
         .container {
             background-color: var(--surface);
             padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 450px;
             text-align: center;
             color: var(--text);
         }
 
-        h1 { margin-bottom: 1.5rem; color: var(--primary); margin-top: 0; }
-        
-        /* Input Styling */
+        h1 { color: var(--primary); margin-top: 0; }
+        h3 { margin: 10px 0; color: #7f8c8d; }
+
+        /* Inputs & Lists */
         .input-group { margin-bottom: 1rem; text-align: left; }
         .row { display: flex; gap: 10px; }
         
-        label { display: block; margin-bottom: 0.5rem; font-weight: bold; font-size: 0.9rem;}
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 10px;
+            border: 2px solid #bdc3c7; border-radius: 6px;
+            font-size: 1rem; box-sizing: border-box;
+        }
+
+        ul { list-style: none; padding: 0; text-align: left; }
+        li {
+            padding: 10px; border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between;
+            align-items: center;
+        }
         
-        input[type="number"], input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #b2bec3;
-            border-radius: 8px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-
-        .add-btn {
-            background-color: var(--secondary);
-            width: auto;
-            padding: 10px 20px;
-        }
-
-        /* Player List */
-        #playerList {
-            list-style: none;
-            padding: 0;
-            text-align: left;
-            max-height: 150px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            margin-bottom: 1rem;
-        }
-        #playerList li {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-        }
-        #playerList li:last-child { border-bottom: none; }
-        .remove-btn { color: var(--danger); cursor: pointer; font-weight: bold; }
-
         /* Buttons */
         button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.1s;
+            background-color: var(--primary); color: white;
+            border: none; padding: 15px; border-radius: 6px;
+            font-size: 1rem; cursor: pointer; width: 100%;
+            margin-top: 10px; transition: 0.2s;
         }
-        button:active { transform: scale(0.98); }
+        button:hover { background-color: #34495e; }
+        button.add-btn { width: auto; padding: 10px 20px; margin-top: 0; }
+        
+        button.vote-btn {
+            background: white; border: 2px solid var(--primary); color: var(--primary);
+            font-weight: bold; margin-bottom: 8px;
+        }
+        button.vote-btn:hover { background: #dfe6e9; }
+
+        .remove-btn { color: var(--accent); cursor: pointer; font-weight: bold; }
 
         /* Game States */
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         
-        .role-card {
-            background: #f1f2f6;
-            padding: 2rem;
-            border-radius: 10px;
-            margin: 2rem 0;
-            border: 2px dashed var(--primary);
+        .card {
+            background: #f7f9fa; border: 2px dashed #bdc3c7;
+            padding: 20px; border-radius: 8px; margin: 20px 0;
         }
 
-        .secret-word {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin: 20px 0;
-            word-wrap: break-word;
-        }
-
-        .instruction {
-            color: #636e72;
-            font-style: italic;
-        }
-
-        .error {
-            background: #ff7675;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-            display: none;
-        }
-
-        .blind-text {
-            color: var(--danger);
-            font-weight: bold;
-            font-size: 2rem;
-        }
+        .big-text { font-size: 2rem; font-weight: 800; color: var(--primary); margin: 15px 0; }
+        .blind-alert { color: var(--accent); }
         
-        .counts-container {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+        /* Modal for Role Reveal */
+        .status-box {
+            background: #ffeaa7; padding: 15px; border-radius: 6px;
+            margin-bottom: 20px; border-left: 5px solid #fdcb6e;
+            text-align: left; font-size: 0.9rem;
         }
     </style>
 </head>
@@ -145,63 +98,59 @@
         
         <div id="setupScreen">
             <h1>Game Setup</h1>
-            
             <div class="input-group">
-                <label>Add Players (<span id="playerCountDisplay">0</span>)</label>
+                <label>Add Players (<span id="pCount">0</span>)</label>
                 <div class="row">
-                    <input type="text" id="playerNameInput" placeholder="Enter name..." onkeypress="handleEnter(event)">
+                    <input type="text" id="newName" placeholder="Name..." onkeypress="handleEnter(event)">
                     <button class="add-btn" onclick="addPlayer()">Add</button>
                 </div>
             </div>
-            <ul id="playerList"></ul>
-
-            <div class="counts-container">
+            <ul id="playerList" style="max-height: 150px; overflow-y: auto;"></ul>
+            
+            <div style="background:#f0f3f4; padding:10px; border-radius:8px;">
                 <div class="row">
-                    <div class="input-group" style="flex:1">
-                        <label>Conservatives</label>
-                        <input type="number" id="conCount" value="2" min="1">
-                    </div>
-                    <div class="input-group" style="flex:1">
-                        <label>Liberals</label>
-                        <input type="number" id="libCount" value="2" min="1">
-                    </div>
-                    <div class="input-group" style="flex:1">
-                        <label>Mr. Blind</label>
-                        <input type="number" id="blindCount" value="1" min="0">
-                    </div>
+                    <div style="flex:1"><label>Cons.</label><input type="number" id="nCon" value="2"></div>
+                    <div style="flex:1"><label>Libs.</label><input type="number" id="nLib" value="2"></div>
+                    <div style="flex:1"><label>Blind</label><input type="number" id="nBlind" value="1"></div>
                 </div>
             </div>
-
-            <p id="errorMsg" class="error"></p>
+            <p id="errorMsg" style="color:red; display:none;"></p>
             <button onclick="startGame()">Start Game</button>
         </div>
 
         <div id="passScreen" class="hidden">
-            <h1>Pass the Device</h1>
-            <p>Pass the device to:</p>
-            <h2 id="currentPlayerName" style="font-size: 2.5rem; color: var(--primary);">Name</h2>
-            <p style="margin-top: 30px;">Tap below to reveal your word.</p>
-            <button onclick="revealRole()">Reveal Word</button>
+            <h3>Pass Device To</h3>
+            <div id="passName" class="big-text">Name</div>
+            <button onclick="reveal()">Tap to Reveal</button>
         </div>
 
         <div id="revealScreen" class="hidden">
-            <h3 id="revealNameHeader">Hi [Name]</h3>
-            <div class="role-card">
-                <div class="instruction">Your secret word is:</div>
-                <div id="secretDisplay" class="secret-word">???</div>
-                <p id="instructionText">Memorize this word!</p>
+            <h3 id="revTitle">Hi Name</h3>
+            <div class="card">
+                <p>Your Secret:</p>
+                <div id="secretWord" class="big-text">WORD</div>
+                <p id="roleDesc" style="font-size:0.9rem; color:#7f8c8d;"></p>
             </div>
-            <button onclick="nextPlayer()">Got it! Hide info</button>
+            <button onclick="nextPass()">Hide & Next</button>
         </div>
 
-        <div id="gameScreen" class="hidden">
-            <h1>Ready to Play!</h1>
-            <div class="role-card" style="background: white;">
-                <p style="font-size: 1.2rem;">All words have been assigned.</p>
-                <hr>
-                <p><strong>First Player:</strong> <span id="firstPlayerName"></span></p>
-                <p>Start the discussion!</p>
-            </div>
+        <div id="voteScreen" class="hidden">
+            <h1>Voting Phase</h1>
+            <div id="statusMsg" class="hidden status-box"></div>
+            <p>Discuss and vote someone out:</p>
+            <div id="voteButtons"></div>
+        </div>
+
+        <div id="blindScreen" class="hidden">
+            <h1 class="blind-alert">Caught!</h1>
+            <p>You are Mr. Blind. You can still win if you guess the <strong>Conservative</strong> word.</p>
+            <input type="text" id="guessInput" placeholder="Enter word...">
+            <button onclick="checkWin()">Submit Guess</button>
+        </div>
+
+        <div id="endScreen" class="hidden">
+            <h1 id="endTitle">Game Over</h1>
+            <div id="endReason" class="card"></div>
             <button onclick="location.reload()">New Game</button>
         </div>
 
@@ -209,157 +158,179 @@
 
     <script>
         // --- DATA ---
-        const wordPairs = [
-            { con: "Coffee", lib: "Tea" }, { con: "Beach", lib: "Pool" },
-            { con: "Train", lib: "Subway" }, { con: "Laptop", lib: "Tablet" },
-            { con: "Guitar", lib: "Violin" }, { con: "Apple", lib: "Pear" },
-            { con: "Sun", lib: "Moon" }, { con: "Socks", lib: "Shoes" },
-            { con: "Pen", lib: "Pencil" }, { con: "Bread", lib: "Toast" },
-            { con: "Football", lib: "Rugby" }, { con: "Movie", lib: "Play" },
-            { con: "Superman", lib: "Batman" }, { con: "Dog", lib: "Cat" },
-            { con: "Cake", lib: "Pie" }, { con: "Gold", lib: "Silver" }
+        const pairs = [
+            { c: "Coffee", l: "Tea" }, { c: "Summer", l: "Winter" },
+            { c: "Plane", l: "Helicopter" }, { c: "Cat", l: "Dog" },
+            { c: "Apple", l: "Orange" }, { c: "Guitar", l: "Piano" },
+            { c: "Car", l: "Truck" }, { c: "Sword", l: "Shield" },
+            { c: "Rice", l: "Pasta" }, { c: "Gold", l: "Diamond" }
         ];
 
-        let names = [];
-        let gameQueue = [];
-        let currentIndex = 0;
+        let players = []; // { name, role, word, id }
+        let activePlayers = []; // subset of players still in game
+        let turnIndex = 0;
+        let targetWord = "";
 
-        // --- SETUP LOGIC ---
-
-        function handleEnter(e) {
-            if (e.key === 'Enter') addPlayer();
+        // --- SETUP ---
+        function handleEnter(e) { if(e.key==='Enter') addPlayer(); }
+        
+        function addPlayer() {
+            const val = document.getElementById('newName').value.trim();
+            if(val) {
+                players.push({ name: val });
+                document.getElementById('newName').value = '';
+                renderList();
+            }
+        }
+        
+        function removePlayer(i) {
+            players.splice(i, 1);
+            renderList();
         }
 
-        function addPlayer() {
-            const input = document.getElementById('playerNameInput');
-            const name = input.value.trim();
-            if (name) {
-                names.push(name);
-                renderNames();
-                input.value = '';
-                input.focus();
+        function renderList() {
+            const ul = document.getElementById('playerList');
+            ul.innerHTML = '';
+            players.forEach((p, i) => {
+                ul.innerHTML += `<li>${p.name} <span class="remove-btn" onclick="removePlayer(${i})">✕</span></li>`;
+            });
+            document.getElementById('pCount').innerText = players.length;
+        }
+
+        // --- INIT GAME ---
+        function startGame() {
+            const nCon = parseInt(document.getElementById('nCon').value);
+            const nLib = parseInt(document.getElementById('nLib').value);
+            const nBlind = parseInt(document.getElementById('nBlind').value);
+            
+            if(players.length < 3) return alert("Need 3+ players");
+            if(nCon+nLib+nBlind !== players.length) return alert("Roles must match player count");
+
+            // 1. Setup Roles
+            const p = pairs[Math.floor(Math.random()*pairs.length)];
+            targetWord = p.c;
+            
+            let deck = [];
+            for(let i=0; i<nCon; i++) deck.push({ role: 'Conservative', word: p.c });
+            for(let i=0; i<nLib; i++) deck.push({ role: 'Liberal', word: p.l });
+            for(let i=0; i<nBlind; i++) deck.push({ role: 'Mr. Blind', word: null });
+
+            // Shuffle Deck
+            deck.sort(() => Math.random() - 0.5);
+
+            // Fix First Player != Blind
+            if(deck[0].role === 'Mr. Blind') {
+                const swapIdx = deck.findIndex(x => x.role !== 'Mr. Blind');
+                [deck[0], deck[swapIdx]] = [deck[swapIdx], deck[0]];
+            }
+
+            // Shuffle Names (for random turn order)
+            let shuffledNames = [...players].sort(() => Math.random() - 0.5);
+
+            // Assign
+            activePlayers = shuffledNames.map((p, i) => ({
+                id: i,
+                name: p.name,
+                role: deck[i].role,
+                word: deck[i].word
+            }));
+
+            // Start Pass Phase
+            turnIndex = 0;
+            showScreen('passScreen');
+            updatePass();
+        }
+
+        // --- PASS PHASE ---
+        function updatePass() {
+            document.getElementById('passName').innerText = activePlayers[turnIndex].name;
+        }
+
+        function reveal() {
+            const p = activePlayers[turnIndex];
+            document.getElementById('revTitle').innerText = `Hi ${p.name}`;
+            const wordBox = document.getElementById('secretWord');
+            const roleBox = document.getElementById('roleDesc');
+
+            if(p.role === 'Mr. Blind') {
+                wordBox.innerHTML = "<span class='blind-alert'>MR. BLIND</span>";
+                roleBox.innerText = "You have no word. Blend in!";
+            } else {
+                wordBox.innerText = p.word;
+                roleBox.innerText = "Memorize this word."; // Don't show role name here to keep it simple, or add if preferred
+            }
+            showScreen('revealScreen');
+        }
+
+        function nextPass() {
+            turnIndex++;
+            if(turnIndex >= activePlayers.length) {
+                renderVote();
+                showScreen('voteScreen');
+            } else {
+                updatePass();
+                showScreen('passScreen');
             }
         }
 
-        function removePlayer(index) {
-            names.splice(index, 1);
-            renderNames();
-        }
+        // --- VOTING PHASE ---
+        function renderVote(statusText = "") {
+            const container = document.getElementById('voteButtons');
+            const msgBox = document.getElementById('statusMsg');
+            
+            container.innerHTML = '';
+            
+            // Show status (who was eliminated previously)
+            if(statusText) {
+                msgBox.innerHTML = statusText;
+                msgBox.classList.remove('hidden');
+            }
 
-        function renderNames() {
-            const list = document.getElementById('playerList');
-            document.getElementById('playerCountDisplay').innerText = names.length;
-            list.innerHTML = '';
-            names.forEach((name, index) => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span>${index + 1}. ${name}</span> <span class="remove-btn" onclick="removePlayer(${index})">✕</span>`;
-                list.appendChild(li);
+            // Create buttons for current active players
+            activePlayers.forEach((p, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'vote-btn';
+                btn.innerText = `Vote Out ${p.name}`;
+                btn.onclick = () => processVote(idx);
+                container.appendChild(btn);
             });
         }
 
-        // --- GAME LOGIC ---
+        function processVote(index) {
+            const victim = activePlayers[index];
 
-        function startGame() {
-            const conCount = parseInt(document.getElementById('conCount').value);
-            const libCount = parseInt(document.getElementById('libCount').value);
-            const blindCount = parseInt(document.getElementById('blindCount').value);
-            const errorMsg = document.getElementById('errorMsg');
-
-            // Validation
-            if (names.length < 3) {
-                showError("Add at least 3 players.");
-                return;
-            }
-            if ((conCount + libCount + blindCount) !== names.length) {
-                showError(`Role counts (${conCount + libCount + blindCount}) must equal Player count (${names.length}).`);
+            // 1. Is it Mr. Blind?
+            if(victim.role === 'Mr. Blind') {
+                showScreen('blindScreen');
                 return;
             }
 
-            // 1. Generate Roles
-            const pair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
-            let roles = [];
-            for(let i=0; i<conCount; i++) roles.push({ type: 'Regular', word: pair.con });
-            for(let i=0; i<libCount; i++) roles.push({ type: 'Regular', word: pair.lib });
-            for(let i=0; i<blindCount; i++) roles.push({ type: 'Mr. Blind', word: null });
+            // 2. Regular Player Eliminated
+            // Remove from array
+            activePlayers.splice(index, 1);
 
-            // 2. Shuffle Roles
-            shuffleArray(roles);
+            // 3. Check Logic: Libs > Cons AND Cons == 1
+            const libs = activePlayers.filter(p => p.role === 'Liberal').length;
+            const cons = activePlayers.filter(p => p.role === 'Conservative').length;
 
-            // 3. FORCE RULE: Player 1 cannot be Mr. Blind
-            // If the first role is Blind, find a non-blind role and swap
-            if (roles[0].type === 'Mr. Blind') {
-                const swapIndex = roles.findIndex(r => r.type !== 'Mr. Blind');
-                // Swap
-                [roles[0], roles[swapIndex]] = [roles[swapIndex], roles[0]];
+            if (cons === 1 && libs > cons) {
+                endGame(
+                    "Game Over: Conservative Defeat", 
+                    `The Conservatives are down to 1 person while Liberals hold the majority.<br><br><strong>${victim.name}</strong> was a ${victim.role}.`
+                );
+                return;
             }
 
-            // 4. Assign Roles to Names
-            gameQueue = names.map((name, i) => ({
-                name: name,
-                type: roles[i].type,
-                word: roles[i].word
-            }));
+            // 4. Game Continues - Re-render vote screen with status
+            renderVote(`<strong>${victim.name}</strong> has been eliminated.<br>Role: <strong>${victim.role}</strong><br>(Word was NOT revealed)`);
+        }
 
-            currentIndex = 0;
-            errorMsg.style.display = 'none';
+        // --- BLIND GUESS ---
+        function checkWin() {
+            const guess = document.getElementById('guessInput').value.trim().toLowerCase();
+            const actual = targetWord.toLowerCase();
             
-            // Switch UI
-            document.getElementById('setupScreen').classList.add('hidden');
-            document.getElementById('passScreen').classList.remove('hidden');
-            updatePassScreen();
-        }
-
-        function showError(msg) {
-            const el = document.getElementById('errorMsg');
-            el.innerText = msg;
-            el.style.display = 'block';
-        }
-
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        // --- PLAY FLOW ---
-
-        function updatePassScreen() {
-            document.getElementById('currentPlayerName').innerText = gameQueue[currentIndex].name;
-        }
-
-        function revealRole() {
-            const player = gameQueue[currentIndex];
-            const display = document.getElementById('secretDisplay');
-            const instruction = document.getElementById('instructionText');
-            
-            document.getElementById('revealNameHeader').innerText = `Hi, ${player.name}`;
-
-            if (player.type === 'Mr. Blind') {
-                display.innerHTML = "<span class='blind-text'>YOU ARE<br>MR. BLIND</span>";
-                instruction.innerText = "You have no word. Blend in!";
+            if(guess === actual) {
+                endGame("Mr. Blind Wins!", `Correct! The word was <strong>${targetWord}</strong>.`);
             } else {
-                // Rule: Do not show if they are Conservative or Liberal. Only show the word.
-                display.innerText = player.word;
-                instruction.innerText = "This is your secret word.";
-            }
-
-            document.getElementById('passScreen').classList.add('hidden');
-            document.getElementById('revealScreen').classList.remove('hidden');
-        }
-
-        function nextPlayer() {
-            currentIndex++;
-            if (currentIndex >= gameQueue.length) {
-                document.getElementById('revealScreen').classList.add('hidden');
-                document.getElementById('firstPlayerName').innerText = gameQueue[0].name;
-                document.getElementById('gameScreen').classList.remove('hidden');
-            } else {
-                updatePassScreen();
-                document.getElementById('revealScreen').classList.add('hidden');
-                document.getElementById('passScreen').classList.remove('hidden');
-            }
-        }
-    </script>
-</body>
-</html>
+                end

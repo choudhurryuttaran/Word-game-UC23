@@ -327,14 +327,145 @@
         // --- WORD DATABASE ---
         // You can paste the large list here. Keeping a small one for testing.
         const pairs = [
-            { c: "Coffee", l: "Tea" }, { c: "Bread", l: "Toast" },
-            { c: "Apple", l: "Orange" }, { c: "Beach", l: "Pool" },
-            { c: "Train", l: "Subway" }, { c: "Laptop", l: "Tablet" },
-            { c: "Dog", l: "Cat" }, { c: "Sun", l: "Moon" },
-            { c: "Pizza", l: "Burger" }, { c: "Superman", l: "Batman" },
-            { c: "Guitar", l: "Violin" }, { c: "Movie", l: "Play" },
-            { c: "Gold", l: "Silver" }, { c: "Rice", l: "Pasta" }
-        ];
+    // --- POP CULTURE & ENTERTAINMENT ---
+    { c: "Marvel", l: "DC" },
+    { c: "Star Wars", l: "Star Trek" },
+    { c: "Harry Potter", l: "Lord of the Rings" },
+    { c: "Mario", l: "Sonic" },
+    { c: "PlayStation", l: "Xbox" },
+    { c: "Netflix", l: "YouTube" },
+    { c: "Comedy", l: "Drama" },
+    { c: "Actor", l: "Director" },
+    { c: "Radio", l: "Podcast" },
+    { c: "Magic", l: "Illusion" },
+    { c: "Circus", l: "Carnival" },
+    { c: "Casino", l: "Arcade" },
+    { c: "Piano", l: "Organ" },
+    { c: "Flute", l: "Clarinet" },
+    { c: "Drums", l: "Percussion" },
+    { c: "Jazz", l: "Blues" },
+    { c: "Rap", l: "Hip Hop" },
+
+    // --- SPORTS & ACTIVITIES ---
+    { c: "Tennis", l: "Badminton" },
+    { c: "Skiing", l: "Snowboarding" },
+    { c: "Swimming", l: "Diving" },
+    { c: "Hiking", l: "Camping" },
+    { c: "Running", l: "Jogging" },
+    { c: "Boxing", l: "Wrestling" },
+    { c: "Golf", l: "Baseball" }, // Both involve swinging/hitting
+    { c: "Yoga", l: "Meditation" },
+    { c: "Chess", l: "Checkers" },
+    { c: "Poker", l: "Blackjack" },
+    { c: "Painting", l: "Drawing" },
+    { c: "Dance", l: "Ballet" },
+    { c: "Fishing", l: "Hunting" },
+
+    // --- FOOD & KITCHEN ---
+    { c: "Pizza", l: "Burger" },
+    { c: "Taco", l: "Burrito" },
+    { c: "Sushi", l: "Sashimi" },
+    { c: "Strawberry", l: "Raspberry" },
+    { c: "Peach", l: "Apricot" },
+    { c: "Onion", l: "Garlic" },
+    { c: "Butter", l: "Margarine" },
+    { c: "Honey", l: "Jam" },
+    { c: "Yogurt", l: "Ice Cream" },
+    { c: "Milk", l: "Cheese" },
+    { c: "Steak", l: "Sausage" },
+    { c: "Chicken", l: "Turkey" },
+    { c: "Fridge", l: "Freezer" },
+    { c: "Oven", l: "Microwave" },
+    { c: "Bowl", l: "Plate" },
+    { c: "Napkin", l: "Towel" },
+    { c: "Grill", l: "Barbecue" },
+
+    // --- CLOTHING & ACCESSORIES ---
+    { c: "Jacket", l: "Coat" },
+    { c: "Scarf", l: "Tie" },
+    { c: "Glove", l: "Mitten" },
+    { c: "Hat", l: "Cap" },
+    { c: "Jeans", l: "Trousers" },
+    { c: "Skirt", l: "Dress" },
+    { c: "Boots", l: "Sneakers" },
+    { c: "Socks", l: "Stockings" },
+    { c: "Belt", l: "Suspenders" },
+    { c: "Ring", l: "Bracelet" },
+    { c: "Necklace", l: "Earring" },
+    { c: "Glasses", l: "Sunglasses" },
+    { c: "Umbrella", l: "Raincoat" },
+    { c: "Wallet", l: "Purse" },
+
+    // --- NATURE & WEATHER ---
+    { c: "Ocean", l: "Sea" },
+    { c: "Thunder", l: "Lightning" },
+    { c: "Hurricane", l: "Tornado" },
+    { c: "Earthquake", l: "Volcano" },
+    { c: "Cloud", l: "Fog" },
+    { c: "Star", l: "Planet" },
+    { c: "Desert", l: "Canyon" },
+    { c: "Cave", l: "Tunnel" },
+    { c: "Ice", l: "Snow" },
+    { c: "Stone", l: "Rock" },
+    { c: "Grass", l: "Leaf" },
+    { c: "Flower", l: "Weed" },
+
+    // --- ANIMALS ---
+    { c: "Duck", l: "Goose" },
+    { c: "Horse", l: "Donkey" },
+    { c: "Wolf", l: "Fox" },
+    { c: "Butterfly", l: "Moth" },
+    { c: "Ant", l: "Spider" },
+    { c: "Snake", l: "Lizard" },
+    { c: "Dolphin", l: "Whale" },
+    { c: "Penguin", l: "Puffin" },
+    { c: "Rabbit", l: "Hare" },
+    { c: "Monkey", l: "Gorilla" },
+    { c: "Mouse", l: "Rat" },
+    { c: "Crocodile", l: "Alligator" },
+
+    // --- HOME & DAILY LIFE ---
+    { c: "Bedroom", l: "Living Room" },
+    { c: "Kitchen", l: "Dining Room" },
+    { c: "Shower", l: "Bath" },
+    { c: "Toothbrush", l: "Floss" },
+    { c: "Soap", l: "Shampoo" },
+    { c: "Broom", l: "Mop" },
+    { c: "Pillow", l: "Blanket" },
+    { c: "Roof", l: "Ceiling" },
+    { c: "Floor", l: "Carpet" },
+    { c: "Stairs", l: "Elevator" },
+    { c: "Hammer", l: "Nail" },
+    { c: "Screw", l: "Bolt" },
+    { c: "Paper", l: "Cardboard" },
+    { c: "Letter", l: "Email" },
+    { c: "Ticket", l: "Passport" },
+
+    // --- TRANSPORT ---
+    { c: "Bicycle", l: "Motorcycle" },
+    { c: "Truck", l: "Van" },
+    { c: "Taxi", l: "Uber" },
+    { c: "Boat", l: "Ship" },
+    { c: "Rocket", l: "Satellite" },
+    { c: "Wheel", l: "Tire" },
+    { c: "Engine", l: "Motor" },
+
+    // --- ABSTRACT & PROFESSIONS ---
+    { c: "Judge", l: "Lawyer" },
+    { c: "Author", l: "Journalist" },
+    { c: "Painter", l: "Artist" },
+    { c: "Chef", l: "Waiter" },
+    { c: "Pilot", l: "Captain" },
+    { c: "King", l: "President" },
+    { c: "Queen", l: "Princess" },
+    { c: "Dream", l: "Nightmare" },
+    { c: "Heaven", l: "Hell" },
+    { c: "Past", l: "Future" },
+    { c: "Minute", l: "Second" },
+    { c: "Day", l: "Week" },
+    { c: "School", l: "University" },
+    { c: "Exam", l: "Quiz" }
+];
 
         let players = [];
         let activePlayers = [];
@@ -551,3 +682,4 @@
     </script>
 </body>
 </html>
+

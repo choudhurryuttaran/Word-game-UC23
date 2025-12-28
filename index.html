@@ -3,208 +3,345 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Secret Word: Elimination Mode</title>
+    <title>Secret Word Party</title>
     <style>
         :root {
-            --primary: #2c3e50;
-            --accent: #e74c3c;
-            --bg: #ecf0f1;
-            --surface: #ffffff;
-            --text: #2c3e50;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: #ffffff;
+            --primary: #6c5ce7;
+            --primary-dark: #5849c4;
+            --accent: #ff7675;
+            --text-main: #2d3436;
+            --text-light: #636e72;
+            --success: #00b894;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
             min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
         }
 
-        .container {
-            background-color: var(--surface);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        /* --- CONTAINER & ANIMATIONS --- */
+        .game-card {
+            background: var(--card-bg);
             width: 100%;
-            max-width: 450px;
+            max-width: 500px;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: height 0.3s ease;
         }
 
-        h1 { color: var(--primary); margin-top: 0; font-size: 1.8rem; }
-        h3 { margin: 10px 0; color: #7f8c8d; }
+        .screen {
+            animation: fadeIn 0.4s ease-out;
+        }
 
-        /* FIXED INPUT SECTION */
-        .input-group { margin-bottom: 1rem; text-align: left; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { margin: 0 0 10px 0; color: var(--primary); font-size: 2rem; letter-spacing: -1px; }
+        h3 { color: var(--text-light); font-weight: 500; margin: 5px 0 20px 0; }
+        p { line-height: 1.6; color: var(--text-light); }
+
+        /* --- INPUTS & FORMS --- */
+        .input-group { position: relative; margin-bottom: 20px; text-align: left; }
+        label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--text-main); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;}
         
-        /* This form wrapper ensures Enter key works and layout is stable */
-        .add-form {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .add-form input {
-            flex: 1; /* Takes up remaining space */
-            padding: 12px;
-            border: 2px solid #bdc3c7;
-            border-radius: 6px;
-            font-size: 1rem;
-            min-width: 0; /* Prevents overflow */
-        }
-
-        .add-form button {
-            width: auto;
-            padding: 12px 20px;
-            margin: 0;
-            background-color: var(--primary);
-        }
-
-        /* Player List */
-        ul { list-style: none; padding: 0; text-align: left; }
-        li {
-            padding: 10px; border-bottom: 1px solid #eee;
-            display: flex; justify-content: space-between;
-            align-items: center;
-            font-size: 1.1rem;
-        }
-        
-        /* Setup Counters */
-        .counter-row {
-            display: flex;
-            gap: 10px;
-            background: #f0f3f4;
+        input[type="text"], input[type="number"] {
+            width: 100%;
             padding: 15px;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+            outline: none;
+        }
+        
+        input:focus { border-color: var(--primary); }
+
+        /* Add Player Row */
+        .add-row { display: flex; gap: 10px; }
+        .add-row input { border-radius: 12px 0 0 12px; }
+        .add-btn { 
+            width: auto; 
+            border-radius: 0 12px 12px 0; 
+            padding: 0 25px; 
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        /* --- LISTS --- */
+        .player-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 12px;
+        }
+        
+        .player-list li {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+        .player-list li:last-child { border-bottom: none; }
+        
+        .remove-icon {
+            color: var(--accent);
+            cursor: pointer;
+            padding: 5px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* --- COUNTERS --- */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .setting-item { text-align: center; }
+        .setting-item input { text-align: center; padding: 8px; font-weight: bold; color: var(--primary); }
+        .setting-item label { font-size: 0.75rem; margin-bottom: 5px; }
+
+        /* --- BUTTONS --- */
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.1s, background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(108, 92, 231, 0.2);
+            margin-top: 10px;
+        }
+
+        button:active { transform: scale(0.98); }
+        button:hover { background: var(--primary-dark); box-shadow: 0 6px 12px rgba(108, 92, 231, 0.3); }
+
+        .btn-vote {
+            background: white;
+            color: var(--text-main);
+            border: 2px solid #dfe6e9;
+            box-shadow: none;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-vote:hover { background: #f1f2f6; border-color: var(--primary); }
+        .btn-danger { background: var(--accent); box-shadow: 0 4px 6px rgba(255, 118, 117, 0.3); }
+        .btn-danger:hover { background: #d63031; }
+
+        /* --- GAME STATES --- */
+        .hidden { display: none !important; }
+
+        .big-reveal {
+            background: #f1f2f6;
+            padding: 30px 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px dashed #b2bec3;
+        }
+        
+        .secret-word {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 15px 0;
+            word-wrap: break-word;
+        }
+
+        .blind-alert {
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .error-toast {
+            background: #ff7675;
+            color: white;
+            padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
-        }
-        .counter-box { flex: 1; text-align: center; }
-        .counter-box input { 
-            width: 100%; padding: 5px; 
-            text-align: center; border: 1px solid #ccc; border-radius: 4px; 
+            font-weight: 600;
+            display: none;
+            animation: shake 0.4s ease-in-out;
         }
 
-        /* General Buttons */
-        button {
-            background-color: var(--primary); color: white;
-            border: none; padding: 15px; border-radius: 6px;
-            font-size: 1rem; cursor: pointer; width: 100%;
-            transition: 0.2s;
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
-        button:hover { background-color: #34495e; }
         
-        button.vote-btn {
-            background: white; border: 2px solid var(--primary); color: var(--primary);
-            font-weight: bold; margin-bottom: 8px;
+        .avatar {
+            width: 30px; height: 30px;
+            background: #dfe6e9;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            margin-right: 10px;
         }
-        button.vote-btn:hover { background: #dfe6e9; }
-
-        .remove-btn { color: var(--accent); cursor: pointer; font-weight: bold; padding: 0 10px;}
-
-        /* Game States */
-        .hidden { display: none !important; }
         
-        .card {
-            background: #f7f9fa; border: 2px dashed #bdc3c7;
-            padding: 20px; border-radius: 8px; margin: 20px 0;
-        }
-
-        .big-text { font-size: 2rem; font-weight: 800; color: var(--primary); margin: 15px 0; }
-        .blind-alert { color: var(--accent); }
-        
-        .status-box {
-            background: #ffeaa7; padding: 15px; border-radius: 6px;
-            margin-bottom: 20px; border-left: 5px solid #fdcb6e;
-            text-align: left; font-size: 0.9rem;
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #ffeaa7;
+            color: #d35400;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="game-card">
         
-        <div id="setupScreen">
-            <h1>Game Setup</h1>
+        <div id="setupScreen" class="screen">
+            <h1>Secret Word</h1>
+            <h3>Party Game Setup</h3>
             
+            <div id="errorMsg" class="error-toast"></div>
+
             <div class="input-group">
-                <label style="display:block; margin-bottom:5px; font-weight:bold;">Add Players (<span id="pCount">0</span>)</label>
-                <form class="add-form" onsubmit="event.preventDefault(); addPlayer();">
-                    <input type="text" id="newName" placeholder="Type Name..." autocomplete="off">
-                    <button type="submit">Add</button>
+                <label>Add Players (<span id="pCount">0</span>)</label>
+                <form class="add-row" onsubmit="event.preventDefault(); addPlayer();">
+                    <input type="text" id="newName" placeholder="Player Name" autocomplete="off">
+                    <button type="submit" class="add-btn">+</button>
                 </form>
             </div>
 
-            <ul id="playerList" style="max-height: 200px; overflow-y: auto;"></ul>
-            
-            <div class="counter-row">
-                <div class="counter-box"><label>Cons.</label><br><input type="number" id="nCon" value="2"></div>
-                <div class="counter-box"><label>Libs.</label><br><input type="number" id="nLib" value="2"></div>
-                <div class="counter-box"><label>Blind</label><br><input type="number" id="nBlind" value="1"></div>
+            <ul id="playerList" class="player-list">
+                <li style="color: #b2bec3; justify-content: center;">No players added yet</li>
+            </ul>
+
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label>Conservatives</label>
+                    <input type="number" id="nCon" value="2" min="1">
+                </div>
+                <div class="setting-item">
+                    <label>Liberals</label>
+                    <input type="number" id="nLib" value="2" min="1">
+                </div>
+                <div class="setting-item">
+                    <label>Mr. Blind</label>
+                    <input type="number" id="nBlind" value="1" min="0">
+                </div>
             </div>
 
-            <p id="errorMsg" style="color:var(--accent); display:none; font-weight:bold;"></p>
-            <button onclick="startGame()">Start Game</button>
+            <button onclick="startGame()">Start Game 🚀</button>
         </div>
 
-        <div id="passScreen" class="hidden">
-            <h3>Pass Device To</h3>
-            <div id="passName" class="big-text">Name</div>
+        <div id="passScreen" class="screen hidden">
+            <h3>Pass the device to</h3>
+            <div style="font-size: 3rem; margin: 40px 0;">📱</div>
+            <h1 id="passName" style="font-size: 2.5rem; margin-bottom: 40px;">Name</h1>
+            <p>Keep the screen hidden from others!</p>
             <button onclick="reveal()">Tap to Reveal</button>
         </div>
 
-        <div id="revealScreen" class="hidden">
+        <div id="revealScreen" class="screen hidden">
             <h3 id="revTitle">Hi Name</h3>
-            <div class="card">
-                <p>Your Secret:</p>
-                <div id="secretWord" class="big-text">WORD</div>
-                <p id="roleDesc" style="font-size:0.9rem; color:#7f8c8d;"></p>
+            <div class="big-reveal">
+                <p style="margin:0; text-transform:uppercase; font-size:0.8rem; font-weight:bold; letter-spacing:1px; color:#b2bec3;">Your Secret Role</p>
+                <div id="secretWord" class="secret-word">WORD</div>
+                <p id="roleDesc" style="font-size:0.95rem;"></p>
             </div>
-            <button onclick="nextPass()">Hide & Next</button>
+            <button onclick="nextPass()">Got it! Hide & Next 🙈</button>
         </div>
 
-        <div id="voteScreen" class="hidden">
-            <h1>Voting Phase</h1>
-            <div id="statusMsg" class="hidden status-box"></div>
-            <p>Discuss and vote someone out:</p>
-            <div id="voteButtons"></div>
+        <div id="voteScreen" class="screen hidden">
+            <h1>Voting Time</h1>
+            <h3>Who is suspicious?</h3>
+            
+            <div id="statusMsg" class="hidden status-badge"></div>
+            
+            <div id="voteButtons" style="text-align: left;">
+                </div>
         </div>
 
-        <div id="blindScreen" class="hidden">
-            <h1 class="blind-alert">Caught!</h1>
-            <p>You are Mr. Blind. You can still win if you guess the <strong>Conservative</strong> word.</p>
-            <input type="text" id="guessInput" placeholder="Enter word..." style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
-            <button onclick="checkWin()">Submit Guess</button>
+        <div id="blindScreen" class="screen hidden">
+            <h1 style="color: var(--accent);">⚠️ CAUGHT!</h1>
+            <p>You are <strong>Mr. Blind</strong>.</p>
+            <p>You can steal the win if you guess the <strong>Conservative's word</strong> correctly.</p>
+            
+            <div class="input-group" style="margin-top:30px;">
+                <input type="text" id="guessInput" placeholder="Enter the secret word...">
+            </div>
+            <button class="btn-danger" onclick="checkWin()">Submit Guess</button>
         </div>
 
-        <div id="endScreen" class="hidden">
+        <div id="endScreen" class="screen hidden">
             <h1 id="endTitle">Game Over</h1>
-            <div id="endReason" class="card"></div>
-            <button onclick="location.reload()">New Game</button>
+            <div class="big-reveal" style="background: #f8f9fa; border: none;">
+                <p id="endReason" style="color: var(--text-main); font-size: 1.1rem;"></p>
+            </div>
+            <button onclick="location.reload()">Play Again 🔄</button>
         </div>
 
     </div>
 
     <script>
-        // --- DATA ---
+        // --- WORD DATABASE ---
+        // You can paste the large list here. Keeping a small one for testing.
         const pairs = [
-            { c: "Coffee", l: "Tea" }, { c: "Summer", l: "Winter" },
-            { c: "Plane", l: "Helicopter" }, { c: "Cat", l: "Dog" },
-            { c: "Apple", l: "Orange" }, { c: "Guitar", l: "Piano" },
-            { c: "Car", l: "Truck" }, { c: "Sword", l: "Shield" },
-            { c: "Rice", l: "Pasta" }, { c: "Gold", l: "Diamond" },
-            { c: "Football", l: "Basketball" }, { c: "Movie", l: "Series" }
+            { c: "Coffee", l: "Tea" }, { c: "Bread", l: "Toast" },
+            { c: "Apple", l: "Orange" }, { c: "Beach", l: "Pool" },
+            { c: "Train", l: "Subway" }, { c: "Laptop", l: "Tablet" },
+            { c: "Dog", l: "Cat" }, { c: "Sun", l: "Moon" },
+            { c: "Pizza", l: "Burger" }, { c: "Superman", l: "Batman" },
+            { c: "Guitar", l: "Violin" }, { c: "Movie", l: "Play" },
+            { c: "Gold", l: "Silver" }, { c: "Rice", l: "Pasta" }
         ];
 
-        let players = []; 
-        let activePlayers = []; 
+        let players = [];
+        let activePlayers = [];
         let turnIndex = 0;
         let targetWord = "";
 
-        // --- SETUP ---
+        // --- SETUP LOGIC ---
         function addPlayer() {
             const input = document.getElementById('newName');
             const val = input.value.trim();
@@ -215,7 +352,7 @@
                 renderList();
             }
         }
-        
+
         function removePlayer(i) {
             players.splice(i, 1);
             renderList();
@@ -223,36 +360,48 @@
 
         function renderList() {
             const ul = document.getElementById('playerList');
+            const pCount = document.getElementById('pCount');
+            
+            if (players.length === 0) {
+                ul.innerHTML = '<li style="color: #b2bec3; justify-content: center;">No players added yet</li>';
+                pCount.innerText = "0";
+                return;
+            }
+
             ul.innerHTML = '';
             players.forEach((p, i) => {
-                ul.innerHTML += `<li>${p.name} <span class="remove-btn" onclick="removePlayer(${i})">✕</span></li>`;
+                ul.innerHTML += `
+                    <li>
+                        <div style="display:flex; align-items:center;">
+                            <span class="avatar">👤</span> ${p.name}
+                        </div>
+                        <span class="remove-icon" onclick="removePlayer(${i})">×</span>
+                    </li>`;
             });
-            document.getElementById('pCount').innerText = players.length;
+            pCount.innerText = players.length;
         }
 
-        // --- INIT GAME ---
+        // --- GAME LOGIC ---
         function startGame() {
             const nCon = parseInt(document.getElementById('nCon').value);
             const nLib = parseInt(document.getElementById('nLib').value);
             const nBlind = parseInt(document.getElementById('nBlind').value);
             const err = document.getElementById('errorMsg');
-            
+
             if(players.length < 3) {
-                err.innerText = "Need at least 3 players";
-                err.style.display = 'block';
+                showError("You need at least 3 players!");
                 return;
             }
-            if(nCon+nLib+nBlind !== players.length) {
-                err.innerText = `Roles (${nCon+nLib+nBlind}) do not match Players (${players.length})`;
-                err.style.display = 'block';
+            if(nCon + nLib + nBlind !== players.length) {
+                showError(`Role counts (${nCon+nLib+nBlind}) must equal Players (${players.length})`);
                 return;
             }
             err.style.display = 'none';
 
-            // 1. Setup Roles
-            const p = pairs[Math.floor(Math.random()*pairs.length)];
+            // Setup Roles
+            const p = pairs[Math.floor(Math.random() * pairs.length)];
             targetWord = p.c;
-            
+
             let deck = [];
             for(let i=0; i<nCon; i++) deck.push({ role: 'Conservative', word: p.c });
             for(let i=0; i<nLib; i++) deck.push({ role: 'Liberal', word: p.l });
@@ -261,16 +410,15 @@
             // Shuffle Deck
             deck.sort(() => Math.random() - 0.5);
 
-            // Fix First Player != Blind
+            // Rule: First player cannot be Blind
             if(deck[0].role === 'Mr. Blind') {
                 const swapIdx = deck.findIndex(x => x.role !== 'Mr. Blind');
                 [deck[0], deck[swapIdx]] = [deck[swapIdx], deck[0]];
             }
 
-            // Shuffle Names (for random turn order)
+            // Shuffle Players for Turn Order
             let shuffledNames = [...players].sort(() => Math.random() - 0.5);
 
-            // Assign
             activePlayers = shuffledNames.map((p, i) => ({
                 id: i,
                 name: p.name,
@@ -278,29 +426,37 @@
                 word: deck[i].word
             }));
 
-            // Start Pass Phase
             turnIndex = 0;
             showScreen('passScreen');
             updatePass();
         }
 
-        // --- PASS PHASE ---
+        function showError(msg) {
+            const err = document.getElementById('errorMsg');
+            err.innerText = msg;
+            err.style.display = 'block';
+            setTimeout(() => { err.style.display = 'none'; }, 3000);
+        }
+
+        // --- PASS & REVEAL ---
         function updatePass() {
             document.getElementById('passName').innerText = activePlayers[turnIndex].name;
         }
 
         function reveal() {
             const p = activePlayers[turnIndex];
-            document.getElementById('revTitle').innerText = `Hi ${p.name}`;
+            document.getElementById('revTitle').innerText = `Hi, ${p.name}`;
             const wordBox = document.getElementById('secretWord');
-            const roleBox = document.getElementById('roleDesc');
+            const roleDesc = document.getElementById('roleDesc');
 
             if(p.role === 'Mr. Blind') {
                 wordBox.innerHTML = "<span class='blind-alert'>MR. BLIND</span>";
-                roleBox.innerText = "You have no word. Blend in!";
+                wordBox.style.color = "var(--accent)";
+                roleDesc.innerText = "You have no word! Pretend you know what everyone is talking about.";
             } else {
                 wordBox.innerText = p.word;
-                roleBox.innerText = "Memorize this word."; 
+                wordBox.style.color = "var(--primary)";
+                roleDesc.innerText = "Memorize this word. It matches your teammates.";
             }
             showScreen('revealScreen');
         }
@@ -316,56 +472,53 @@
             }
         }
 
-        // --- VOTING PHASE ---
+        // --- VOTING ---
         function renderVote(statusText = "") {
             const container = document.getElementById('voteButtons');
-            const msgBox = document.getElementById('statusMsg');
+            const statusBadge = document.getElementById('statusMsg');
             
             container.innerHTML = '';
-            
-            // Show status (who was eliminated previously)
+
             if(statusText) {
-                msgBox.innerHTML = statusText;
-                msgBox.classList.remove('hidden');
+                statusBadge.innerHTML = statusText;
+                statusBadge.classList.remove('hidden');
+            } else {
+                statusBadge.classList.add('hidden');
             }
 
-            // Create buttons for current active players
             activePlayers.forEach((p, idx) => {
-                const btn = document.createElement('button');
-                btn.className = 'vote-btn';
-                btn.innerText = `Vote Out ${p.name}`;
-                btn.onclick = () => processVote(idx);
-                container.appendChild(btn);
+                container.innerHTML += `
+                    <button class="btn-vote" onclick="processVote(${idx})">
+                        <span><span class="avatar">👤</span> ${p.name}</span>
+                        <span style="color:var(--accent); font-weight:bold;">VOTE OUT</span>
+                    </button>`;
             });
         }
 
         function processVote(index) {
             const victim = activePlayers[index];
 
-            // 1. Is it Mr. Blind?
             if(victim.role === 'Mr. Blind') {
                 showScreen('blindScreen');
                 return;
             }
 
-            // 2. Regular Player Eliminated
-            // Remove from array
+            // Remove Player
             activePlayers.splice(index, 1);
 
-            // 3. Check Logic: Libs > Cons AND Cons == 1
+            // Check Win Condition
             const libs = activePlayers.filter(p => p.role === 'Liberal').length;
             const cons = activePlayers.filter(p => p.role === 'Conservative').length;
 
             if (cons === 1 && libs > cons) {
                 endGame(
-                    "Game Over: Conservative Defeat", 
-                    `Conservatives are down to 1 person while Liberals hold the majority.<br><br><strong>${victim.name}</strong> was a ${victim.role}.`
+                    "Conservative Defeat!", 
+                    `Conservatives are down to 1 player and Liberals have the majority.<br><br><strong>${victim.name}</strong> was a ${victim.role}.`
                 );
                 return;
             }
 
-            // 4. Game Continues - Re-render vote screen with status
-            renderVote(`<strong>${victim.name}</strong> has been eliminated.<br>They were a: <strong>${victim.role}</strong><br>(Word remains hidden)`);
+            renderVote(`${victim.name} was a <strong>${victim.role}</strong>.`);
         }
 
         // --- BLIND GUESS ---
@@ -374,9 +527,9 @@
             const actual = targetWord.toLowerCase();
             
             if(guess === actual) {
-                endGame("Mr. Blind Wins!", `Correct! The word was <strong>${targetWord}</strong>.`);
+                endGame("Mr. Blind Wins! 🎩", `Correct! The word was <strong>${targetWord}</strong>.`);
             } else {
-                endGame("Civilians Win!", `Wrong guess. The word was <strong>${targetWord}</strong>.<br>Mr. Blind has been caught.`);
+                endGame("Civilians Win! 🏆", `Mr. Blind guessed wrong! The word was <strong>${targetWord}</strong>.`);
             }
         }
 
@@ -384,16 +537,15 @@
             document.getElementById('endTitle').innerText = title;
             document.getElementById('endReason').innerHTML = reason;
             
-            const t = document.getElementById('endTitle');
-            if(title.includes("Blind Wins")) t.style.color = "var(--accent)";
-            else t.style.color = "#27ae60";
+            const titleEl = document.getElementById('endTitle');
+            if(title.includes("Blind")) titleEl.style.color = "var(--accent)";
+            else titleEl.style.color = "var(--success)";
 
             showScreen('endScreen');
         }
 
-        // --- UTILS ---
         function showScreen(id) {
-            document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
         }
     </script>

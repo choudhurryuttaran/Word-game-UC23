@@ -3,271 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Secret Word Party</title>
+    <title>Secret Word - Online</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-gradient: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
             --card-bg: #ffffff;
-            --primary: #6c5ce7;
-            --primary-dark: #5849c4;
-            --accent: #ff7675;
-            --text-main: #2d3436;
-            --text-light: #636e72;
-            --success: #00b894;
+            --primary: #10ac84;
+            --primary-dark: #0d8c6c;
+            --accent: #ff6b6b;
+            --text: #2d3436;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: var(--bg-gradient);
-            color: var(--text-main);
+            color: var(--text);
             margin: 0;
             padding: 20px;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-sizing: border-box;
         }
 
-        /* --- CONTAINER & ANIMATIONS --- */
         .game-card {
             background: var(--card-bg);
             width: 100%;
-            max-width: 500px;
+            max-width: 450px;
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             text-align: center;
             position: relative;
-            overflow: hidden;
-            transition: height 0.3s ease;
         }
 
-        .screen {
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h1 { margin: 0 0 10px 0; color: var(--primary); font-size: 2rem; letter-spacing: -1px; }
-        h3 { color: var(--text-light); font-weight: 500; margin: 5px 0 20px 0; }
-        p { line-height: 1.6; color: var(--text-light); }
-
-        /* --- INPUTS & FORMS --- */
-        .input-group { position: relative; margin-bottom: 20px; text-align: left; }
-        label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--text-main); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;}
-        
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #dfe6e9;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            transition: border-color 0.2s;
-            box-sizing: border-box;
-            outline: none;
-        }
-        
-        input:focus { border-color: var(--primary); }
-
-        /* Add Player Row */
-        .add-row { display: flex; gap: 10px; }
-        .add-row input { border-radius: 12px 0 0 12px; }
-        .add-btn { 
-            width: auto; 
-            border-radius: 0 12px 12px 0; 
-            padding: 0 25px; 
-            font-weight: 800;
-            font-size: 1.2rem;
-            margin: 0;
-        }
-
-        /* --- LISTS --- */
-        .player-list {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 20px 0;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            border-radius: 12px;
-        }
-        
-        .player-list li {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 500;
-        }
-        .player-list li:last-child { border-bottom: none; }
-        
-        .remove-icon {
-            color: var(--accent);
-            cursor: pointer;
-            padding: 5px;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        /* --- COUNTERS --- */
-        .settings-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-        .setting-item { text-align: center; }
-        .setting-item input { text-align: center; padding: 8px; font-weight: bold; color: var(--primary); }
-        .setting-item label { font-size: 0.75rem; margin-bottom: 5px; }
-
-        /* --- BUTTONS --- */
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.1s, background 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px rgba(108, 92, 231, 0.2);
-            margin-top: 10px;
-        }
-
-        button:active { transform: scale(0.98); }
-        button:hover { background: var(--primary-dark); box-shadow: 0 6px 12px rgba(108, 92, 231, 0.3); }
-
-        .btn-vote {
-            background: white;
-            color: var(--text-main);
-            border: 2px solid #dfe6e9;
-            box-shadow: none;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .btn-vote:hover { background: #f1f2f6; border-color: var(--primary); }
-        .btn-danger { background: var(--accent); box-shadow: 0 4px 6px rgba(255, 118, 117, 0.3); }
-        .btn-danger:hover { background: #d63031; }
-
-        /* --- GAME STATES --- */
         .hidden { display: none !important; }
+        input { width: 100%; padding: 15px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem;}
+        button { width: 100%; padding: 15px; border: none; border-radius: 10px; background: var(--primary); color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 5px;}
+        button:hover { background: var(--primary-dark); }
+        .btn-danger { background: var(--accent); }
+        .btn-secondary { background: #b2bec3; }
 
-        .big-reveal {
-            background: #f1f2f6;
-            padding: 30px 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            border: 2px dashed #b2bec3;
-        }
-        
-        .secret-word {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin: 15px 0;
-            word-wrap: break-word;
-        }
+        /* LISTS */
+        ul { list-style: none; padding: 0; text-align: left; margin: 20px 0; max-height: 200px; overflow-y: auto;}
+        li { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+        .del { color: var(--accent); font-weight: bold; cursor: pointer; padding: 0 10px;}
 
-        .blind-alert {
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            animation: pulse 2s infinite;
-        }
+        /* ANIMATION */
+        .screen { animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .error-toast {
-            background: #ff7675;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-weight: 600;
-            display: none;
-            animation: shake 0.4s ease-in-out;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        
-        .avatar {
-            width: 30px; height: 30px;
-            background: #dfe6e9;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            margin-right: 10px;
-        }
-        
-        /* Status Badges */
-        .status-badge {
-            display: inline-block;
-            padding: 8px 15px;
-            background: #ffeaa7;
-            color: #d35400;
-            border-radius: 20px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-        }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div class="game-card">
         
-        <div id="setupScreen" class="screen">
+        <div id="loginScreen" class="screen">
             <h1>Secret Word</h1>
-            <h3>Party Game Setup</h3>
-            
-            <div id="errorMsg" class="error-toast"></div>
+            <p>Enter a Room Name to join or create a group.</p>
+            <input type="text" id="roomInput" placeholder="Ex: FamilyGame" style="text-align:center; font-weight:bold; letter-spacing:1px;">
+            <button onclick="joinRoom()">Enter Room</button>
+        </div>
 
+        <div id="setupScreen" class="screen hidden">
+            <h2 id="roomTitle">Room: ...</h2>
+            <div id="loadingSpinner" class="loader"></div>
+            
             <div class="input-group">
-                <label>Add Players (<span id="pCount">0</span>)</label>
-                <form class="add-row" onsubmit="event.preventDefault(); addPlayer();">
+                <form onsubmit="event.preventDefault(); addPlayerDB();" style="display:flex; gap:10px;">
                     <input type="text" id="newName" placeholder="Player Name" autocomplete="off">
-                    <button type="submit" class="add-btn">+</button>
+                    <button type="submit" style="width:auto;">+</button>
                 </form>
             </div>
 
-            <ul id="playerList" class="player-list">
-                <li style="color: #b2bec3; justify-content: center;">No players added yet</li>
-            </ul>
+            <ul id="playerList"></ul>
 
-            <div class="settings-grid">
-                <div class="setting-item">
-                    <label>Conservatives</label>
-                    <input type="number" id="nCon" value="2" min="1">
-                </div>
-                <div class="setting-item">
-                    <label>Liberals</label>
-                    <input type="number" id="nLib" value="2" min="1">
-                </div>
-                <div class="setting-item">
-                    <label>Mr. Blind</label>
-                    <input type="number" id="nBlind" value="1" min="0">
+            <button class="btn-secondary" onclick="clearRoomDB()">Clear List 🗑️</button>
+
+            <div style="background:#f1f2f6; padding:15px; border-radius:10px; margin: 20px 0;">
+                <div style="display:flex; gap:5px;">
+                    <div><label>Cons.</label><input type="number" id="nCon" value="2"></div>
+                    <div><label>Libs.</label><input type="number" id="nLib" value="2"></div>
+                    <div><label>Blind</label><input type="number" id="nBlind" value="1"></div>
                 </div>
             </div>
 
@@ -275,283 +99,168 @@
         </div>
 
         <div id="passScreen" class="screen hidden">
-            <h3>Pass the device to</h3>
-            <div style="font-size: 3rem; margin: 40px 0;">📱</div>
-            <h1 id="passName" style="font-size: 2.5rem; margin-bottom: 40px;">Name</h1>
-            <p>Keep the screen hidden from others!</p>
-            <button onclick="reveal()">Tap to Reveal</button>
+            <h3>Pass Phone To</h3>
+            <h1 id="passName" style="font-size:2.5rem; color:var(--primary);">Name</h1>
+            <button onclick="reveal()">Reveal Secret</button>
         </div>
 
         <div id="revealScreen" class="screen hidden">
-            <h3 id="revTitle">Hi Name</h3>
-            <div class="big-reveal">
-                <p style="margin:0; text-transform:uppercase; font-size:0.8rem; font-weight:bold; letter-spacing:1px; color:#b2bec3;">Your Secret Role</p>
-                <div id="secretWord" class="secret-word">WORD</div>
-                <p id="roleDesc" style="font-size:0.95rem;"></p>
+            <h3>Your Secret</h3>
+            <div style="padding:20px; background:#f8f9fa; border-radius:10px; margin:20px 0;">
+                <h1 id="secretWord" style="color:var(--primary); font-size:2.5rem; margin:0;">...</h1>
+                <p id="roleDesc"></p>
             </div>
-            <button onclick="nextPass()">Got it! Hide & Next 🙈</button>
+            <button onclick="nextPass()">Hide & Next</button>
         </div>
 
         <div id="voteScreen" class="screen hidden">
-            <h1>Voting Time</h1>
-            <h3>Who is suspicious?</h3>
-            
-            <div id="statusMsg" class="hidden status-badge"></div>
-            
-            <div id="voteButtons" style="text-align: left;">
-                </div>
+            <h1>Voting Phase</h1>
+            <div id="voteList"></div>
         </div>
 
         <div id="blindScreen" class="screen hidden">
-            <h1 style="color: var(--accent);">⚠️ CAUGHT!</h1>
-            <p>You are <strong>Mr. Blind</strong>.</p>
-            <p>You can steal the win if you guess the <strong>Conservative's word</strong> correctly.</p>
-            
-            <div class="input-group" style="margin-top:30px;">
-                <input type="text" id="guessInput" placeholder="Enter the secret word...">
-            </div>
+            <h1 style="color:var(--accent);">CAUGHT!</h1>
+            <p>You are Mr. Blind! Guess the Conservative word to win.</p>
+            <input type="text" id="guessInput" placeholder="Guess word...">
             <button class="btn-danger" onclick="checkWin()">Submit Guess</button>
         </div>
 
         <div id="endScreen" class="screen hidden">
             <h1 id="endTitle">Game Over</h1>
-            <div class="big-reveal" style="background: #f8f9fa; border: none;">
-                <p id="endReason" style="color: var(--text-main); font-size: 1.1rem;"></p>
-            </div>
-            <button onclick="location.reload()">Play Again 🔄</button>
+            <p id="endReason"></p>
+            <button onclick="location.reload()">Play Again</button>
         </div>
 
     </div>
 
     <script>
-        // --- WORD DATABASE ---
-        // You can paste the large list here. Keeping a small one for testing.
-        const pairs = [
-    // --- POP CULTURE & ENTERTAINMENT ---
-    { c: "Marvel", l: "DC" },
-    { c: "Star Wars", l: "Star Trek" },
-    { c: "Harry Potter", l: "Lord of the Rings" },
-    { c: "Mario", l: "Sonic" },
-    { c: "PlayStation", l: "Xbox" },
-    { c: "Netflix", l: "YouTube" },
-    { c: "Comedy", l: "Drama" },
-    { c: "Actor", l: "Director" },
-    { c: "Radio", l: "Podcast" },
-    { c: "Magic", l: "Illusion" },
-    { c: "Circus", l: "Carnival" },
-    { c: "Casino", l: "Arcade" },
-    { c: "Piano", l: "Organ" },
-    { c: "Flute", l: "Clarinet" },
-    { c: "Drums", l: "Percussion" },
-    { c: "Jazz", l: "Blues" },
-    { c: "Rap", l: "Hip Hop" },
+        // ==========================================
+        // 1. PASTE YOUR FIREBASE CONFIG HERE
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // ==========================================
 
-    // --- SPORTS & ACTIVITIES ---
-    { c: "Tennis", l: "Badminton" },
-    { c: "Skiing", l: "Snowboarding" },
-    { c: "Swimming", l: "Diving" },
-    { c: "Hiking", l: "Camping" },
-    { c: "Running", l: "Jogging" },
-    { c: "Boxing", l: "Wrestling" },
-    { c: "Golf", l: "Baseball" }, // Both involve swinging/hitting
-    { c: "Yoga", l: "Meditation" },
-    { c: "Chess", l: "Checkers" },
-    { c: "Poker", l: "Blackjack" },
-    { c: "Painting", l: "Drawing" },
-    { c: "Dance", l: "Ballet" },
-    { c: "Fishing", l: "Hunting" },
-
-    // --- FOOD & KITCHEN ---
-    { c: "Pizza", l: "Burger" },
-    { c: "Taco", l: "Burrito" },
-    { c: "Sushi", l: "Sashimi" },
-    { c: "Strawberry", l: "Raspberry" },
-    { c: "Peach", l: "Apricot" },
-    { c: "Onion", l: "Garlic" },
-    { c: "Butter", l: "Margarine" },
-    { c: "Honey", l: "Jam" },
-    { c: "Yogurt", l: "Ice Cream" },
-    { c: "Milk", l: "Cheese" },
-    { c: "Steak", l: "Sausage" },
-    { c: "Chicken", l: "Turkey" },
-    { c: "Fridge", l: "Freezer" },
-    { c: "Oven", l: "Microwave" },
-    { c: "Bowl", l: "Plate" },
-    { c: "Napkin", l: "Towel" },
-    { c: "Grill", l: "Barbecue" },
-
-    // --- CLOTHING & ACCESSORIES ---
-    { c: "Jacket", l: "Coat" },
-    { c: "Scarf", l: "Tie" },
-    { c: "Glove", l: "Mitten" },
-    { c: "Hat", l: "Cap" },
-    { c: "Jeans", l: "Trousers" },
-    { c: "Skirt", l: "Dress" },
-    { c: "Boots", l: "Sneakers" },
-    { c: "Socks", l: "Stockings" },
-    { c: "Belt", l: "Suspenders" },
-    { c: "Ring", l: "Bracelet" },
-    { c: "Necklace", l: "Earring" },
-    { c: "Glasses", l: "Sunglasses" },
-    { c: "Umbrella", l: "Raincoat" },
-    { c: "Wallet", l: "Purse" },
-
-    // --- NATURE & WEATHER ---
-    { c: "Ocean", l: "Sea" },
-    { c: "Thunder", l: "Lightning" },
-    { c: "Hurricane", l: "Tornado" },
-    { c: "Earthquake", l: "Volcano" },
-    { c: "Cloud", l: "Fog" },
-    { c: "Star", l: "Planet" },
-    { c: "Desert", l: "Canyon" },
-    { c: "Cave", l: "Tunnel" },
-    { c: "Ice", l: "Snow" },
-    { c: "Stone", l: "Rock" },
-    { c: "Grass", l: "Leaf" },
-    { c: "Flower", l: "Weed" },
-
-    // --- ANIMALS ---
-    { c: "Duck", l: "Goose" },
-    { c: "Horse", l: "Donkey" },
-    { c: "Wolf", l: "Fox" },
-    { c: "Butterfly", l: "Moth" },
-    { c: "Ant", l: "Spider" },
-    { c: "Snake", l: "Lizard" },
-    { c: "Dolphin", l: "Whale" },
-    { c: "Penguin", l: "Puffin" },
-    { c: "Rabbit", l: "Hare" },
-    { c: "Monkey", l: "Gorilla" },
-    { c: "Mouse", l: "Rat" },
-    { c: "Crocodile", l: "Alligator" },
-
-    // --- HOME & DAILY LIFE ---
-    { c: "Bedroom", l: "Living Room" },
-    { c: "Kitchen", l: "Dining Room" },
-    { c: "Shower", l: "Bath" },
-    { c: "Toothbrush", l: "Floss" },
-    { c: "Soap", l: "Shampoo" },
-    { c: "Broom", l: "Mop" },
-    { c: "Pillow", l: "Blanket" },
-    { c: "Roof", l: "Ceiling" },
-    { c: "Floor", l: "Carpet" },
-    { c: "Stairs", l: "Elevator" },
-    { c: "Hammer", l: "Nail" },
-    { c: "Screw", l: "Bolt" },
-    { c: "Paper", l: "Cardboard" },
-    { c: "Letter", l: "Email" },
-    { c: "Ticket", l: "Passport" },
-
-    // --- TRANSPORT ---
-    { c: "Bicycle", l: "Motorcycle" },
-    { c: "Truck", l: "Van" },
-    { c: "Taxi", l: "Uber" },
-    { c: "Boat", l: "Ship" },
-    { c: "Rocket", l: "Satellite" },
-    { c: "Wheel", l: "Tire" },
-    { c: "Engine", l: "Motor" },
-
-    // --- ABSTRACT & PROFESSIONS ---
-    { c: "Judge", l: "Lawyer" },
-    { c: "Author", l: "Journalist" },
-    { c: "Painter", l: "Artist" },
-    { c: "Chef", l: "Waiter" },
-    { c: "Pilot", l: "Captain" },
-    { c: "King", l: "President" },
-    { c: "Queen", l: "Princess" },
-    { c: "Dream", l: "Nightmare" },
-    { c: "Heaven", l: "Hell" },
-    { c: "Past", l: "Future" },
-    { c: "Minute", l: "Second" },
-    { c: "Day", l: "Week" },
-    { c: "School", l: "University" },
-    { c: "Exam", l: "Quiz" }
-];
-
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+        
+        let currentRoom = "";
         let players = [];
         let activePlayers = [];
         let turnIndex = 0;
         let targetWord = "";
+        
+        // --- DATA ---
+        const pairs = [
+            { c: "Coffee", l: "Tea" }, { c: "Bread", l: "Toast" },
+            { c: "Apple", l: "Orange" }, { c: "Beach", l: "Pool" },
+            { c: "Train", l: "Subway" }, { c: "Laptop", l: "Tablet" },
+            { c: "Dog", l: "Cat" }, { c: "Sun", l: "Moon" }
+        ];
 
-        // --- SETUP LOGIC ---
-        function addPlayer() {
-            const input = document.getElementById('newName');
-            const val = input.value.trim();
-            if(val) {
-                players.push({ name: val });
-                input.value = '';
-                input.focus();
-                renderList();
-            }
-        }
+        // --- FIREBASE LOGIC ---
 
-        function removePlayer(i) {
-            players.splice(i, 1);
-            renderList();
-        }
-
-        function renderList() {
-            const ul = document.getElementById('playerList');
-            const pCount = document.getElementById('pCount');
+        function joinRoom() {
+            const room = document.getElementById('roomInput').value.trim().toUpperCase();
+            if(!room) return alert("Enter a room name");
             
-            if (players.length === 0) {
-                ul.innerHTML = '<li style="color: #b2bec3; justify-content: center;">No players added yet</li>';
-                pCount.innerText = "0";
-                return;
-            }
+            currentRoom = room;
+            document.getElementById('roomTitle').innerText = "Room: " + room;
+            
+            showScreen('setupScreen');
+            document.getElementById('loadingSpinner').style.display = "block";
 
-            ul.innerHTML = '';
-            players.forEach((p, i) => {
-                ul.innerHTML += `
-                    <li>
-                        <div style="display:flex; align-items:center;">
-                            <span class="avatar">👤</span> ${p.name}
-                        </div>
-                        <span class="remove-icon" onclick="removePlayer(${i})">×</span>
-                    </li>`;
+            // Listen for changes in this room
+            db.ref('rooms/' + currentRoom).on('value', (snapshot) => {
+                document.getElementById('loadingSpinner').style.display = "none";
+                const data = snapshot.val();
+                
+                players = []; // Reset local list
+                const listEl = document.getElementById('playerList');
+                listEl.innerHTML = "";
+
+                if(data) {
+                    // Convert Firebase object to array
+                    Object.keys(data).forEach(key => {
+                        players.push({ id: key, name: data[key].name });
+                        
+                        // Add to UI
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <span>${data[key].name}</span>
+                            <span class="del" onclick="removePlayerDB('${key}')">×</span>
+                        `;
+                        listEl.appendChild(li);
+                    });
+                } else {
+                    listEl.innerHTML = "<li style='color:#ccc; justify-content:center;'>No players yet</li>";
+                }
             });
-            pCount.innerText = players.length;
         }
 
-        // --- GAME LOGIC ---
+        function addPlayerDB() {
+            const name = document.getElementById('newName').value.trim();
+            if(name) {
+                // Push to Firebase
+                db.ref('rooms/' + currentRoom).push({
+                    name: name
+                });
+                document.getElementById('newName').value = "";
+            }
+        }
+
+        function removePlayerDB(key) {
+            // Remove from Firebase
+            db.ref('rooms/' + currentRoom + '/' + key).remove();
+        }
+
+        function clearRoomDB() {
+            if(confirm("Delete all players in this room?")) {
+                db.ref('rooms/' + currentRoom).remove();
+            }
+        }
+
+        // --- GAME LOGIC (Local on the host phone) ---
+        
         function startGame() {
             const nCon = parseInt(document.getElementById('nCon').value);
             const nLib = parseInt(document.getElementById('nLib').value);
             const nBlind = parseInt(document.getElementById('nBlind').value);
-            const err = document.getElementById('errorMsg');
 
-            if(players.length < 3) {
-                showError("You need at least 3 players!");
-                return;
-            }
-            if(nCon + nLib + nBlind !== players.length) {
-                showError(`Role counts (${nCon+nLib+nBlind}) must equal Players (${players.length})`);
-                return;
-            }
-            err.style.display = 'none';
+            if(players.length < 3) return alert("Need 3+ players");
+            if(nCon + nLib + nBlind !== players.length) return alert("Roles must match player count");
 
             // Setup Roles
-            const p = pairs[Math.floor(Math.random() * pairs.length)];
+            const p = pairs[Math.floor(Math.random()*pairs.length)];
             targetWord = p.c;
-
+            
             let deck = [];
             for(let i=0; i<nCon; i++) deck.push({ role: 'Conservative', word: p.c });
             for(let i=0; i<nLib; i++) deck.push({ role: 'Liberal', word: p.l });
             for(let i=0; i<nBlind; i++) deck.push({ role: 'Mr. Blind', word: null });
-
-            // Shuffle Deck
+            
             deck.sort(() => Math.random() - 0.5);
 
-            // Rule: First player cannot be Blind
+            // Fix Blind First
             if(deck[0].role === 'Mr. Blind') {
-                const swapIdx = deck.findIndex(x => x.role !== 'Mr. Blind');
-                [deck[0], deck[swapIdx]] = [deck[swapIdx], deck[0]];
+                const s = deck.findIndex(x => x.role !== 'Mr. Blind');
+                [deck[0], deck[s]] = [deck[s], deck[0]];
             }
 
             // Shuffle Players for Turn Order
             let shuffledNames = [...players].sort(() => Math.random() - 0.5);
 
             activePlayers = shuffledNames.map((p, i) => ({
-                id: i,
                 name: p.name,
                 role: deck[i].role,
                 word: deck[i].word
@@ -562,32 +271,21 @@
             updatePass();
         }
 
-        function showError(msg) {
-            const err = document.getElementById('errorMsg');
-            err.innerText = msg;
-            err.style.display = 'block';
-            setTimeout(() => { err.style.display = 'none'; }, 3000);
-        }
-
-        // --- PASS & REVEAL ---
         function updatePass() {
             document.getElementById('passName').innerText = activePlayers[turnIndex].name;
         }
 
         function reveal() {
             const p = activePlayers[turnIndex];
-            document.getElementById('revTitle').innerText = `Hi, ${p.name}`;
-            const wordBox = document.getElementById('secretWord');
-            const roleDesc = document.getElementById('roleDesc');
+            const wb = document.getElementById('secretWord');
+            const rd = document.getElementById('roleDesc');
 
             if(p.role === 'Mr. Blind') {
-                wordBox.innerHTML = "<span class='blind-alert'>MR. BLIND</span>";
-                wordBox.style.color = "var(--accent)";
-                roleDesc.innerText = "You have no word! Pretend you know what everyone is talking about.";
+                wb.innerHTML = "<span style='color:var(--accent)'>MR. BLIND</span>";
+                rd.innerText = "You have no word. Blend in!";
             } else {
-                wordBox.innerText = p.word;
-                wordBox.style.color = "var(--primary)";
-                roleDesc.innerText = "Memorize this word. It matches your teammates.";
+                wb.innerText = p.word;
+                rd.innerText = "Memorize this word.";
             }
             showScreen('revealScreen');
         }
@@ -603,75 +301,47 @@
             }
         }
 
-        // --- VOTING ---
-        function renderVote(statusText = "") {
-            const container = document.getElementById('voteButtons');
-            const statusBadge = document.getElementById('statusMsg');
+        function renderVote(status="") {
+            const div = document.getElementById('voteList');
+            div.innerHTML = status ? `<p style="background:#ffeaa7; padding:10px; border-radius:5px;">${status}</p>` : "";
             
-            container.innerHTML = '';
-
-            if(statusText) {
-                statusBadge.innerHTML = statusText;
-                statusBadge.classList.remove('hidden');
-            } else {
-                statusBadge.classList.add('hidden');
-            }
-
             activePlayers.forEach((p, idx) => {
-                container.innerHTML += `
-                    <button class="btn-vote" onclick="processVote(${idx})">
-                        <span><span class="avatar">👤</span> ${p.name}</span>
-                        <span style="color:var(--accent); font-weight:bold;">VOTE OUT</span>
-                    </button>`;
+                const btn = document.createElement('button');
+                btn.style.background = "white";
+                btn.style.color = "var(--text)";
+                btn.style.border = "2px solid #eee";
+                btn.style.marginTop = "10px";
+                btn.innerHTML = `Vote Out <b>${p.name}</b>`;
+                btn.onclick = () => processVote(idx);
+                div.appendChild(btn);
             });
         }
 
-        function processVote(index) {
-            const victim = activePlayers[index];
+        function processVote(idx) {
+            const victim = activePlayers[idx];
+            if(victim.role === 'Mr. Blind') return showScreen('blindScreen');
 
-            if(victim.role === 'Mr. Blind') {
-                showScreen('blindScreen');
-                return;
-            }
-
-            // Remove Player
-            activePlayers.splice(index, 1);
-
-            // Check Win Condition
-            const libs = activePlayers.filter(p => p.role === 'Liberal').length;
+            activePlayers.splice(idx, 1);
+            
             const cons = activePlayers.filter(p => p.role === 'Conservative').length;
+            const libs = activePlayers.filter(p => p.role === 'Liberal').length;
 
-            if (cons === 1 && libs > cons) {
-                endGame(
-                    "Conservative Defeat!", 
-                    `Conservatives are down to 1 player and Liberals have the majority.<br><br><strong>${victim.name}</strong> was a ${victim.role}.`
-                );
-                return;
-            }
-
-            renderVote(`${victim.name} was a <strong>${victim.role}</strong>.`);
-        }
-
-        // --- BLIND GUESS ---
-        function checkWin() {
-            const guess = document.getElementById('guessInput').value.trim().toLowerCase();
-            const actual = targetWord.toLowerCase();
-            
-            if(guess === actual) {
-                endGame("Mr. Blind Wins! 🎩", `Correct! The word was <strong>${targetWord}</strong>.`);
+            if(cons === 1 && libs > cons) {
+                endGame("Conservative Defeat", "Liberals have the majority!");
             } else {
-                endGame("Civilians Win! 🏆", `Mr. Blind guessed wrong! The word was <strong>${targetWord}</strong>.`);
+                renderVote(`${victim.name} was a <b>${victim.role}</b>`);
             }
         }
 
-        function endGame(title, reason) {
-            document.getElementById('endTitle').innerText = title;
-            document.getElementById('endReason').innerHTML = reason;
-            
-            const titleEl = document.getElementById('endTitle');
-            if(title.includes("Blind")) titleEl.style.color = "var(--accent)";
-            else titleEl.style.color = "var(--success)";
+        function checkWin() {
+            const guess = document.getElementById('guessInput').value.toLowerCase();
+            if(guess === targetWord.toLowerCase()) endGame("Mr. Blind Wins!", "Correct guess!");
+            else endGame("Civilians Win!", `Wrong guess. Word was ${targetWord}`);
+        }
 
+        function endGame(title, msg) {
+            document.getElementById('endTitle').innerText = title;
+            document.getElementById('endReason').innerHTML = msg;
             showScreen('endScreen');
         }
 
@@ -679,7 +349,7 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
         }
+
     </script>
 </body>
 </html>
-
